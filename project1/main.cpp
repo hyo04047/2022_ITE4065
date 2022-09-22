@@ -1,21 +1,23 @@
 #include <iostream>
-#include <vector>
+// #include <vector>
 #include <pthread.h>
 // #include <thread>
 // #include <mutex>
 // #include <condition_variable>
+// #include <future>
 #include "Joiner.hpp"
 #include "Parser.hpp"
 //---------------------------------------------------------------------------
 using namespace std;
 //---------------------------------------------------------------------------
-#define NUM_THREAD 31
+#define NUM_THREAD 47
 //---------------------------------------------------------------------------
 bool isstop = false;
 uint64_t cnt_for_thread = 0;
 QueryInfo* thread_arg[NUM_THREAD];
 string* volatile thread_ret[NUM_THREAD];
 // vector<thread> threads;
+// vector<shared_future<void>> thread_ret(NUM_THREAD, NULL);
 // mutex mutexes[NUM_THREAD];
 // condition_variable cv[NUM_THREAD];
 pthread_t threads[NUM_THREAD];
@@ -26,6 +28,7 @@ Joiner joiner;
 void *thread_join(void* arg) {
    long tid = (long)arg;
 
+   // thread_ret[tid].clear();
    thread_ret[tid] = (string *)-1;
    pthread_mutex_lock(&mutexes[tid]);
    pthread_cond_wait(&cv[tid], &mutexes[tid]);
@@ -69,6 +72,7 @@ int main(int argc, char *argv[]) {
          printf("pthread_create error\n");
          return 0;
       }
+      // auto ret = async(launch::async, thread_join, thread_cnt);
       // threads.emplace_back(thread(&thread_join, idx));
       // thread_ret[idx] = (string *)-1;
       // while (thread_ret[idx] != (string *)-1) {
@@ -79,17 +83,15 @@ int main(int argc, char *argv[]) {
    while (getline(cin, line)) {
       if (line == "F") {
          for (long idx=0; idx < cnt_for_thread; ++idx) {
+            // while (thread_ret[idx].empty()) ;
             while (thread_ret[idx] == (string *)-1) ;
             cout << *(thread_ret[idx]);
             thread_ret[idx] = (string *)-1;
             // free(thread_ret[idx]);
          }
          cnt_for_thread = 0;
-         continue;
+         continue; // End of a batch
       }
-
-      QueryInfo *i = new QueryInfo();
-      i->parseQuery(line);
 
       if (cnt_for_thread == NUM_THREAD) {
          for (long idx=0; idx < cnt_for_thread; ++idx) {
@@ -100,6 +102,9 @@ int main(int argc, char *argv[]) {
          }
          cnt_for_thread = 0;
       }
+
+      QueryInfo *i = new QueryInfo();
+      i->parseQuery(line);
 
       thread_arg[cnt_for_thread] = move(i);
       thread_ret[cnt_for_thread] = (string *)-1;

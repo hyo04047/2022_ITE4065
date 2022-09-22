@@ -65,8 +65,6 @@ vector
 /root/CP/2022_ite4065_2016025041/project1/main.cpp
 iostream
 -
-vector
--
 pthread.h
 -
 Joiner.hpp
