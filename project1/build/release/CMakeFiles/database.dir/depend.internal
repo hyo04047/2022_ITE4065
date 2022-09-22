@@ -6,20 +6,20 @@ CMakeFiles/database.dir/Joiner.cpp.o
  ../../include/Operators.hpp
  ../../include/Parser.hpp
  ../../include/Relation.hpp
- /root/CP/submission/Joiner.cpp
+ /root/CP/2022_ite4065_2016025041/project1/Joiner.cpp
 CMakeFiles/database.dir/Operators.cpp.o
  ../../include/Operators.hpp
  ../../include/Parser.hpp
  ../../include/Relation.hpp
- /root/CP/submission/Operators.cpp
+ /root/CP/2022_ite4065_2016025041/project1/Operators.cpp
 CMakeFiles/database.dir/Parser.cpp.o
  ../../include/Parser.hpp
  ../../include/Relation.hpp
- /root/CP/submission/Parser.cpp
+ /root/CP/2022_ite4065_2016025041/project1/Parser.cpp
 CMakeFiles/database.dir/Relation.cpp.o
  ../../include/Relation.hpp
- /root/CP/submission/Relation.cpp
+ /root/CP/2022_ite4065_2016025041/project1/Relation.cpp
 CMakeFiles/database.dir/Utils.cpp.o
  ../../include/Relation.hpp
  ../../include/Utils.hpp
- /root/CP/submission/Utils.cpp
+ /root/CP/2022_ite4065_2016025041/project1/Utils.cpp

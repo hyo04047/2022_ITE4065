@@ -6,5 +6,5 @@ CXX_FLAGS = -O3 -DNDEBUG   -std=c++17
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/root/CP/submission/include 
+CXX_INCLUDES = -I/root/CP/2022_ite4065_2016025041/project1/include 
 

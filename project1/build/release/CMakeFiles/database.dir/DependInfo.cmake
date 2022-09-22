@@ -4,11 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/root/CP/submission/Joiner.cpp" "/root/CP/submission/build/release/CMakeFiles/database.dir/Joiner.cpp.o"
-  "/root/CP/submission/Operators.cpp" "/root/CP/submission/build/release/CMakeFiles/database.dir/Operators.cpp.o"
-  "/root/CP/submission/Parser.cpp" "/root/CP/submission/build/release/CMakeFiles/database.dir/Parser.cpp.o"
-  "/root/CP/submission/Relation.cpp" "/root/CP/submission/build/release/CMakeFiles/database.dir/Relation.cpp.o"
-  "/root/CP/submission/Utils.cpp" "/root/CP/submission/build/release/CMakeFiles/database.dir/Utils.cpp.o"
+  "/root/CP/2022_ite4065_2016025041/project1/Joiner.cpp" "/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles/database.dir/Joiner.cpp.o"
+  "/root/CP/2022_ite4065_2016025041/project1/Operators.cpp" "/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles/database.dir/Operators.cpp.o"
+  "/root/CP/2022_ite4065_2016025041/project1/Parser.cpp" "/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles/database.dir/Parser.cpp.o"
+  "/root/CP/2022_ite4065_2016025041/project1/Relation.cpp" "/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles/database.dir/Relation.cpp.o"
+  "/root/CP/2022_ite4065_2016025041/project1/Utils.cpp" "/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles/database.dir/Utils.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

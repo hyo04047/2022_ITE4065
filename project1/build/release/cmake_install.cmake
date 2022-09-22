@@ -1,4 +1,4 @@
-# Install script for directory: /root/CP/submission
+# Install script for directory: /root/CP/2022_ite4065_2016025041/project1
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/root/CP/submission/build/release/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/root/CP/2022_ite4065_2016025041/project1/build/release/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

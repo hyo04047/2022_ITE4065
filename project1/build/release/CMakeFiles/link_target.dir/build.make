@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /root/CP/submission
+CMAKE_SOURCE_DIR = /root/CP/2022_ite4065_2016025041/project1
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /root/CP/submission/build/release
+CMAKE_BINARY_DIR = /root/CP/2022_ite4065_2016025041/project1/build/release
 
 # Utility rule file for link_target.
 
@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /root/CP/submission/build/release
 include CMakeFiles/link_target.dir/progress.make
 
 CMakeFiles/link_target:
-	/usr/bin/cmake -E create_symlink /root/CP/submission/workloads /root/CP/submission/build/release/workloads
+	/usr/bin/cmake -E create_symlink /root/CP/2022_ite4065_2016025041/project1/workloads /root/CP/2022_ite4065_2016025041/project1/build/release/workloads
 
 link_target: CMakeFiles/link_target
 link_target: CMakeFiles/link_target.dir/build.make
@@ -71,6 +71,6 @@ CMakeFiles/link_target.dir/clean:
 .PHONY : CMakeFiles/link_target.dir/clean
 
 CMakeFiles/link_target.dir/depend:
-	cd /root/CP/submission/build/release && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /root/CP/submission /root/CP/submission /root/CP/submission/build/release /root/CP/submission/build/release /root/CP/submission/build/release/CMakeFiles/link_target.dir/DependInfo.cmake --color=$(COLOR)
+	cd /root/CP/2022_ite4065_2016025041/project1/build/release && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /root/CP/2022_ite4065_2016025041/project1 /root/CP/2022_ite4065_2016025041/project1 /root/CP/2022_ite4065_2016025041/project1/build/release /root/CP/2022_ite4065_2016025041/project1/build/release /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles/link_target.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/link_target.dir/depend
 

@@ -44,10 +44,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /root/CP/submission
+CMAKE_SOURCE_DIR = /root/CP/2022_ite4065_2016025041/project1
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /root/CP/submission/build/release
+CMAKE_BINARY_DIR = /root/CP/2022_ite4065_2016025041/project1/build/release
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -82,14 +82,14 @@ clean: CMakeFiles/database.dir/clean
 CMakeFiles/link_target.dir/all:
 	$(MAKE) -f CMakeFiles/link_target.dir/build.make CMakeFiles/link_target.dir/depend
 	$(MAKE) -f CMakeFiles/link_target.dir/build.make CMakeFiles/link_target.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/submission/build/release/CMakeFiles --progress-num= "Built target link_target"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles --progress-num= "Built target link_target"
 .PHONY : CMakeFiles/link_target.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/link_target.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 0
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/link_target.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 0
 .PHONY : CMakeFiles/link_target.dir/rule
 
 # Convenience name for target.
@@ -109,14 +109,14 @@ CMakeFiles/link_target.dir/clean:
 CMakeFiles/harness.dir/all:
 	$(MAKE) -f CMakeFiles/harness.dir/build.make CMakeFiles/harness.dir/depend
 	$(MAKE) -f CMakeFiles/harness.dir/build.make CMakeFiles/harness.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/submission/build/release/CMakeFiles --progress-num=11,12 "Built target harness"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles --progress-num=11,12 "Built target harness"
 .PHONY : CMakeFiles/harness.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/harness.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/harness.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 0
 .PHONY : CMakeFiles/harness.dir/rule
 
 # Convenience name for target.
@@ -136,14 +136,14 @@ CMakeFiles/harness.dir/clean:
 CMakeFiles/Query2SQL.dir/all: CMakeFiles/database.dir/all
 	$(MAKE) -f CMakeFiles/Query2SQL.dir/build.make CMakeFiles/Query2SQL.dir/depend
 	$(MAKE) -f CMakeFiles/Query2SQL.dir/build.make CMakeFiles/Query2SQL.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/submission/build/release/CMakeFiles --progress-num=3,4 "Built target Query2SQL"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles --progress-num=3,4 "Built target Query2SQL"
 .PHONY : CMakeFiles/Query2SQL.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Query2SQL.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 8
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 8
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Query2SQL.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 0
 .PHONY : CMakeFiles/Query2SQL.dir/rule
 
 # Convenience name for target.
@@ -163,14 +163,14 @@ CMakeFiles/Query2SQL.dir/clean:
 CMakeFiles/Driver.dir/all: CMakeFiles/database.dir/all
 	$(MAKE) -f CMakeFiles/Driver.dir/build.make CMakeFiles/Driver.dir/depend
 	$(MAKE) -f CMakeFiles/Driver.dir/build.make CMakeFiles/Driver.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/submission/build/release/CMakeFiles --progress-num=1,2 "Built target Driver"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles --progress-num=1,2 "Built target Driver"
 .PHONY : CMakeFiles/Driver.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Driver.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 8
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 8
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Driver.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 0
 .PHONY : CMakeFiles/Driver.dir/rule
 
 # Convenience name for target.
@@ -190,14 +190,14 @@ CMakeFiles/Driver.dir/clean:
 CMakeFiles/database.dir/all:
 	$(MAKE) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/depend
 	$(MAKE) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/submission/build/release/CMakeFiles --progress-num=5,6,7,8,9,10 "Built target database"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles --progress-num=5,6,7,8,9,10 "Built target database"
 .PHONY : CMakeFiles/database.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/database.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 6
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/database.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/submission/build/release/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /root/CP/2022_ite4065_2016025041/project1/build/release/CMakeFiles 0
 .PHONY : CMakeFiles/database.dir/rule
 
 # Convenience name for target.

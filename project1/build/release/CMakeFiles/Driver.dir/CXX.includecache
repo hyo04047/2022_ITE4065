@@ -13,6 +13,8 @@ cstdint
 -
 set
 -
+future
+-
 Operators.hpp
 ../../include/Operators.hpp
 Relation.hpp
@@ -60,11 +62,15 @@ string
 vector
 -
 
-/root/CP/submission/main.cpp
+/root/CP/2022_ite4065_2016025041/project1/main.cpp
 iostream
 -
+vector
+-
+pthread.h
+-
 Joiner.hpp
-/root/CP/submission/Joiner.hpp
+/root/CP/2022_ite4065_2016025041/project1/Joiner.hpp
 Parser.hpp
-/root/CP/submission/Parser.hpp
+/root/CP/2022_ite4065_2016025041/project1/Parser.hpp
 

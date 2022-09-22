@@ -66,6 +66,7 @@ void QueryInfo::parsePredicate(string& rawPredicate)
     char compType=rawPredicate[relCols[0].size()];
     filters.emplace_back(leftSelect,constant,FilterInfo::Comparison(compType));
   } else {
+    auto rightSelect=parseRelColPair(relCols[1]);
     predicates.emplace_back(leftSelect,parseRelColPair(relCols[1]));
   }
 }
