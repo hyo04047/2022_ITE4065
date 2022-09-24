@@ -115,15 +115,15 @@ int main(int argc, char *argv[]) {
       // i->parseQuery(line);
 
       // thread_arg[cnt_for_thread] = move(i);
-      thread_ret[cnt_for_thread] = (string *)-1;
+      // thread_ret[cnt_for_thread] = (string *)-1;
 
       // unique_lock<mutex> lock(mutexes[cnt_for_thread]);
       // cv[cnt_for_thread].notify_one();
       // lock.unlock();
 
-      pthread_mutex_lock(&mutexes[cnt_for_thread]);
-      pthread_cond_signal(&cv[cnt_for_thread]);
-      pthread_mutex_unlock(&mutexes[cnt_for_thread]);
+      // pthread_mutex_lock(&mutexes[cnt_for_thread]);
+      // pthread_cond_signal(&cv[cnt_for_thread]);
+      // pthread_mutex_unlock(&mutexes[cnt_for_thread]);
       cnt_for_thread++;
    }
 
