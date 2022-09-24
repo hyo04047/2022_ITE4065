@@ -14,8 +14,9 @@ using namespace std;
 //---------------------------------------------------------------------------
 bool isstop = false;
 uint64_t cnt_for_thread = 0;
-QueryInfo* thread_arg[NUM_THREAD];
+// QueryInfo* thread_arg[NUM_THREAD];
 string* volatile thread_ret[NUM_THREAD];
+string inputline[NUM_THREAD];
 // vector<thread> threads;
 // vector<shared_future<void>> thread_ret(NUM_THREAD, NULL);
 // mutex mutexes[NUM_THREAD];
@@ -37,8 +38,10 @@ void *thread_join(void* arg) {
    // cv[tid].wait(lock);
 
    while (!isstop) {
-      QueryInfo &i = *(thread_arg[tid]);
-      string *result = new string(joiner.join(i));
+      // QueryInfo &i = *(thread_arg[tid]);
+      QueryInfo *i = new QueryInfo();
+      i->parseQuery(inputline[tid]);
+      string *result = new string(joiner.join(*i));
 
       thread_ret[tid] = move(result);
       pthread_mutex_lock(&mutexes[tid]);
@@ -102,11 +105,16 @@ int main(int argc, char *argv[]) {
          }
          cnt_for_thread = 0;
       }
+      inputline[cnt_for_thread] = line;
 
-      QueryInfo *i = new QueryInfo();
-      i->parseQuery(line);
+      pthread_mutex_lock(&mutexes[cnt_for_thread]);
+      pthread_cond_signal(&cv[cnt_for_thread]);
+      pthread_mutex_unlock(&mutexes[cnt_for_thread]);
 
-      thread_arg[cnt_for_thread] = move(i);
+      // QueryInfo *i = new QueryInfo();
+      // i->parseQuery(line);
+
+      // thread_arg[cnt_for_thread] = move(i);
       thread_ret[cnt_for_thread] = (string *)-1;
 
       // unique_lock<mutex> lock(mutexes[cnt_for_thread]);
