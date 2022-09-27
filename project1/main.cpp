@@ -1,10 +1,5 @@
 #include <iostream>
-// #include <vector>
 #include <pthread.h>
-// #include <thread>
-// #include <mutex>
-// #include <condition_variable>
-// #include <future>
 #include "Joiner.hpp"
 #include "Parser.hpp"
 //---------------------------------------------------------------------------
