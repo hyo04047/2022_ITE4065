@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -fsanitize=address -Wall"
 
 include_directories(include)
 link_libraries(pthread)
+link_libraries(tcmalloc)
 
 add_library(database Relation.cpp Operators.cpp Parser.cpp Utils.cpp Joiner.cpp)
 target_include_directories(database PUBLIC
