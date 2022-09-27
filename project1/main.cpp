@@ -10,11 +10,11 @@
 //---------------------------------------------------------------------------
 using namespace std;
 //---------------------------------------------------------------------------
-#define NUM_THREAD 47
+#define NUM_THREAD 48
 //---------------------------------------------------------------------------
 bool isstop = false;
+bool isbatchend = false;
 uint64_t cnt_for_thread = 0;
-// QueryInfo* thread_arg[NUM_THREAD];
 string* volatile thread_ret[NUM_THREAD];
 string inputline[NUM_THREAD];
 // vector<thread> threads;
@@ -22,8 +22,8 @@ string inputline[NUM_THREAD];
 // mutex mutexes[NUM_THREAD];
 // condition_variable cv[NUM_THREAD];
 pthread_t threads[NUM_THREAD];
-pthread_mutex_t mutexes[NUM_THREAD];
-pthread_cond_t cv[NUM_THREAD];
+pthread_mutex_t mutexes[NUM_THREAD+1];
+pthread_cond_t cv[NUM_THREAD+1];
 Joiner joiner;
 //---------------------------------------------------------------------------
 void *thread_join(void* arg) {
@@ -38,12 +38,22 @@ void *thread_join(void* arg) {
    // cv[tid].wait(lock);
 
    while (!isstop) {
-      // QueryInfo &i = *(thread_arg[tid]);
       QueryInfo *i = new QueryInfo();
       i->parseQuery(inputline[tid]);
       string *result = new string(joiner.join(*i));
 
       thread_ret[tid] = move(result);
+      if (tid == (NUM_THREAD-1)) {
+         pthread_mutex_lock(&mutexes[NUM_THREAD]);
+         pthread_cond_signal(&cv[NUM_THREAD]);
+         pthread_mutex_unlock(&mutexes[NUM_THREAD]);
+      }
+      // if (tid == (cnt_for_thread-1) && isbatchend) {
+      //    pthread_mutex_lock(&mutexes[NUM_THREAD]);
+      //    isbatchend = false;
+      //    pthread_cond_signal(&cv[NUM_THREAD]);
+      //    pthread_mutex_unlock(&mutexes[NUM_THREAD]);
+      // }
       pthread_mutex_lock(&mutexes[tid]);
       // free(thread_arg[tid]);
       pthread_cond_wait(&cv[tid], &mutexes[tid]);
@@ -82,12 +92,20 @@ int main(int argc, char *argv[]) {
       //    this_thread::yield();
       // }
    }
+   mutexes[NUM_THREAD] = PTHREAD_MUTEX_INITIALIZER;
+   cv[NUM_THREAD] = PTHREAD_COND_INITIALIZER;
    
    while (getline(cin, line)) {
       if (line == "F") {
-         for (long idx=0; idx < cnt_for_thread; ++idx) {
+         // isbatchend = true;
+         // pthread_mutex_lock(&mutexes[NUM_THREAD]);
+         // isbatchend = true;
+         // pthread_cond_wait(&cv[NUM_THREAD], &mutexes[NUM_THREAD]);
+         // pthread_mutex_unlock(&mutexes[NUM_THREAD]);
+         for (long idx=0; idx<cnt_for_thread; ++idx) {
             // while (thread_ret[idx].empty()) ;
-            while (thread_ret[idx] == (string *)-1) ;
+            while (thread_ret[idx] == (string *)-1) 
+               pthread_yield();
             cout << *(thread_ret[idx]);
             thread_ret[idx] = (string *)-1;
             // free(thread_ret[idx]);
@@ -97,8 +115,12 @@ int main(int argc, char *argv[]) {
       }
 
       if (cnt_for_thread == NUM_THREAD) {
-         for (long idx=0; idx < cnt_for_thread; ++idx) {
-            while (thread_ret[idx] == (string *)-1) ;
+         pthread_mutex_lock(&mutexes[NUM_THREAD]);
+         pthread_cond_wait(&cv[NUM_THREAD], &mutexes[NUM_THREAD]);
+         pthread_mutex_unlock(&mutexes[NUM_THREAD]);
+         for (long idx=0; idx<cnt_for_thread; ++idx) {
+            // while (thread_ret[idx] == (string *)-1) 
+            //    pthread_yield();
             cout << *(thread_ret[idx]);
             thread_ret[idx] = (string *)-1;
             // free(thread_ret[idx]);
