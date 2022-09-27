@@ -11,8 +11,8 @@ class Joiner {
 
   /// Add scan to query
   std::shared_ptr<Operator> addScan(std::set<unsigned>& usedRelations,SelectInfo& info,QueryInfo& query);
-  std::vector<std::future<void>> asyncResult;
-  std::atomic<int> queryIndex;
+  // std::vector<std::future<void>> asyncResult;
+  // std::atomic<int> queryIndex;
   public:
   // Joiner(int thread_num) {
   //   asyncResult.reserve(256);

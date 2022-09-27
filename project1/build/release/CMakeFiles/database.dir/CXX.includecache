@@ -6,6 +6,26 @@
 
 #IncludeRegexTransform: 
 
+../../include/Operators.hpp
+cassert
+-
+memory
+-
+stdexcept
+-
+unordered_map
+-
+unordered_set
+-
+vector
+-
+set
+-
+Relation.hpp
+../../include/Relation.hpp
+Parser.hpp
+../../include/Parser.hpp
+
 ../../include/Parser.hpp
 cstdint
 -
@@ -26,15 +46,13 @@ string
 vector
 -
 
-/root/CP/2022_ite4065_2016025041/project1/Parser.cpp
+/root/CP/2022_ite4065_2016025041/project1/Operators.cpp
+Operators.hpp
+-
 cassert
 -
 iostream
 -
-utility
+future
 -
-sstream
--
-Parser.hpp
-/root/CP/2022_ite4065_2016025041/project1/Parser.hpp
 

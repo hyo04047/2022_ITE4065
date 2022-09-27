@@ -1,6 +1,7 @@
 #include <Operators.hpp>
 #include <cassert>
 #include <iostream>
+#include <future>
 //---------------------------------------------------------------------------
 using namespace std;
 //---------------------------------------------------------------------------
@@ -127,11 +128,23 @@ void Join::copy2Result(uint64_t leftId,uint64_t rightId)
 void Join::run()
   // Run
 {
-  left->require(pInfo.left);
-  right->require(pInfo.right);
-  left->run();
-  right->run();
+  // left->require(pInfo.left);
+  // right->require(pInfo.right);
+  // left->run();
+  // right->run();
 
+  auto f1 = async([&]{
+    left->require(pInfo.left);
+    left->run();
+  });
+
+  auto f2 = async([&]{
+    right->require(pInfo.right);
+    right->run();
+  });
+
+  f1.get();
+  f2.get();
 
   // Use smaller input for build
   if (left->resultSize>right->resultSize) {
@@ -200,6 +213,16 @@ void SelfJoin::run()
 {
   input->require(pInfo.left);
   input->require(pInfo.right);
+  // auto f1 = async([&]{
+  //   input->require(pInfo.left);
+  // });
+
+  // auto f2 = async([&]{
+  //   input->require(pInfo.right);
+  // });
+
+  // f1.get();
+  // f2.get();
   input->run();
   inputData=input->getResults();
 

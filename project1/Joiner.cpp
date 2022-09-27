@@ -68,8 +68,6 @@ string Joiner::join(QueryInfo& query)
   auto right=addScan(usedRelations,firstJoin.right,query);
   shared_ptr<Operator> root=make_shared<Join>(move(left),move(right),firstJoin);
 
-
-
   for (unsigned i=1;i<query.predicates.size();++i) {
     auto& pInfo=query.predicates[i];
     auto& leftInfo=pInfo.left; auto& rightInfo=pInfo.right;
