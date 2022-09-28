@@ -52,8 +52,8 @@ void *thread_join(void* arg) {
       pthread_mutex_unlock(&mutexes[tid]);
    }
 
-   // pthread_exit(NULL);
-   return NULL;
+   pthread_exit(NULL);
+   // return NULL;
 }
 //---------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
