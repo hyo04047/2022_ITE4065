@@ -5,7 +5,7 @@
 //---------------------------------------------------------------------------
 using namespace std;
 //---------------------------------------------------------------------------
-#define NUM_THREAD 20
+#define NUM_THREAD 48
 //---------------------------------------------------------------------------
 bool isstop = false;
 Joiner joiner;
@@ -21,6 +21,7 @@ pthread_mutex_t mutexes[NUM_THREAD+1];
 pthread_cond_t cv[NUM_THREAD+1];
 //---------------------------------------------------------------------------
 void *thread_join(void* arg) {
+   // thread id
    long tid = (long)arg;
 
    // initialize result
