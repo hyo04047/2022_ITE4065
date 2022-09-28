@@ -1,1 +1,1 @@
-/usr/bin/c++  -O3 -DNDEBUG  -rdynamic CMakeFiles/Driver.dir/main.cpp.o  -o Driver  -lpthread -ltcmalloc libdatabase.a -lpthread -ltcmalloc 
+/usr/bin/c++  -O3 -DNDEBUG  -rdynamic CMakeFiles/Driver.dir/main.cpp.o  -o Driver  -lpthread libdatabase.a -lpthread 

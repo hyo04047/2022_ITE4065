@@ -219,7 +219,7 @@ Sig18_BINARY_DIR:STATIC=/root/CP/2022_ite4065_2016025041/project1/build/release
 Sig18_SOURCE_DIR:STATIC=/root/CP/2022_ite4065_2016025041/project1
 
 //Dependencies for the target
-database_LIB_DEPENDS:STATIC=general;pthread;general;tcmalloc;
+database_LIB_DEPENDS:STATIC=general;pthread;
 
 
 ########################
