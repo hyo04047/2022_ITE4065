@@ -57,7 +57,7 @@ class Snapshot {
 
         // Update thread local value for thread id with clean snapshot
         void update(T value, size_t tid) {
-            // Get clean snapshot before update
+            // Get clean snap before update
             std::valarray<T> snap = scan();
             // Load old snapshot to get previous label
             SnapValue<T> oldValue = snapShots[tid];
@@ -82,7 +82,7 @@ class Snapshot {
                 // Get another snap to compare
                 newCopy = collect();
 
-                // Flag which set to true when getting clean snap succeed
+                // Flag which set to true when another collect needed
                 bool flag = false;
                 
                 // Compare with each thread's snapshots
@@ -91,9 +91,16 @@ class Snapshot {
                     // If labels are same, it means those are same snaps
                     // If not, it means update happened between two snaps
                     if (oldCopy[i].getLabel() != newCopy[i].getLabel()) {
+                        // If update happened,
                         if (moved[i])
+                            // Check if snap was moved or not
+                            // If moved is true, it means update with clean snap 
+                            // happened between two snaps by other threads
+                            // Therefore just get it's clean snap
                             return oldCopy[i].getSnap();
                         else {
+                            // If moved is false, it means i'th thread doesn't have clean snap
+                            // Then set moved and flag to true, delete old snap and collect again
                             moved[i] = true;
                             flag = true;
                             delete[] oldCopy;
@@ -102,9 +109,14 @@ class Snapshot {
                         }
                     }
                 }
+
+                // Flag with true means another collect is needed,
+                // So skip return phase and go back to loop to collect again
                 if (flag)
                     continue;
 
+                // When getting clean snap succeed,
+                // make new snap for update()
                 std::valarray<T> ret = std::valarray<T>(size);
                 for (size_t i = 0; i < size; ++i)
                     ret[i] = newCopy[i].getValue();
@@ -116,6 +128,8 @@ class Snapshot {
         SnapValue<T>* snapShots;
         size_t size;
 
+        // Take snapshot at current state
+        // Copy all snap value and return
         SnapValue<T>* collect() {
             SnapValue<T>* copy = new SnapValue<T>[size];
             for (size_t i = 0; i < size; ++i)
