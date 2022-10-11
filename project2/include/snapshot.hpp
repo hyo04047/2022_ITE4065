@@ -129,7 +129,7 @@ class Snapshot {
         size_t size;
 
         // Take snapshot at current state
-        // Copy all snap value and return
+        // Copy all snap value and return 
         SnapValue<T>* collect() {
             SnapValue<T>* copy = new SnapValue<T>[size];
             for (size_t i = 0; i < size; ++i)
