@@ -1,20 +1,14 @@
-# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
-# file Copyright.txt or https://cmake.org/licensing for details.
-
-cmake_minimum_required(VERSION 3.5)
-
 # Make file names absolute:
 #
-get_filename_component(filename "/Users/hataesung/Desktop/3-2/CP/project3/release/_deps/googletest-subbuild/googletest-populate-prefix/src/e4717df71a4f45bf9f0ac88c6cd9846a0bc248dd.zip" ABSOLUTE)
-get_filename_component(directory "/Users/hataesung/Desktop/3-2/CP/project3/release/_deps/googletest-src" ABSOLUTE)
+get_filename_component(filename "/root/CP/2022_ite4065_2016025041/project3/project3/release/_deps/googletest-subbuild/googletest-populate-prefix/src/e4717df71a4f45bf9f0ac88c6cd9846a0bc248dd.zip" ABSOLUTE)
+get_filename_component(directory "/root/CP/2022_ite4065_2016025041/project3/project3/release/_deps/googletest-src" ABSOLUTE)
 
 message(STATUS "extracting...
      src='${filename}'
-     dst='${directory}'"
-)
+     dst='${directory}'")
 
 if(NOT EXISTS "${filename}")
-  message(FATAL_ERROR "File to extract does not exist: '${filename}'")
+  message(FATAL_ERROR "error: file to extract does not exist: '${filename}'")
 endif()
 
 # Prepare a space for extracting:
@@ -29,15 +23,14 @@ file(MAKE_DIRECTORY "${ut_dir}")
 # Extract it:
 #
 message(STATUS "extracting... [tar xfz]")
-execute_process(COMMAND ${CMAKE_COMMAND} -E tar xfz ${filename} 
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar xfz ${filename}
   WORKING_DIRECTORY ${ut_dir}
-  RESULT_VARIABLE rv
-)
+  RESULT_VARIABLE rv)
 
 if(NOT rv EQUAL 0)
   message(STATUS "extracting... [error clean up]")
   file(REMOVE_RECURSE "${ut_dir}")
-  message(FATAL_ERROR "Extract of '${filename}' failed")
+  message(FATAL_ERROR "error: extract of '${filename}' failed")
 endif()
 
 # Analyze what came out of the tar file:

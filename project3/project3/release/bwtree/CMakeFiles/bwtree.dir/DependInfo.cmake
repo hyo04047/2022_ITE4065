@@ -1,14 +1,16 @@
-
-# Consider dependencies only in project.
-set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
-
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
+  "CXX"
   )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_CXX
+  "/root/CP/2022_ite4065_2016025041/project3/project3/bwtree/src/bwtree.cc" "/root/CP/2022_ite4065_2016025041/project3/project3/release/bwtree/CMakeFiles/bwtree.dir/src/bwtree.cc.o"
+  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
-# The set of dependency files which are needed:
-set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/hataesung/Desktop/3-2/CP/project3/bwtree/src/bwtree.cc" "bwtree/CMakeFiles/bwtree.dir/src/bwtree.cc.o" "gcc" "bwtree/CMakeFiles/bwtree.dir/src/bwtree.cc.o.d"
+# The include file search paths:
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "../bwtree/include"
   )
 
 # Targets to which this target links.

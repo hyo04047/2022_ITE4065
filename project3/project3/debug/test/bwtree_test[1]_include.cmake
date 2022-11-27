@@ -1,5 +1,0 @@
-if(EXISTS "/Users/hataesung/Desktop/3-2/CP/project3/debug/test/bwtree_test[1]_tests.cmake")
-  include("/Users/hataesung/Desktop/3-2/CP/project3/debug/test/bwtree_test[1]_tests.cmake")
-else()
-  add_test(bwtree_test_NOT_BUILT bwtree_test_NOT_BUILT)
-endif()

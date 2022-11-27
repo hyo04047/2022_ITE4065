@@ -1,7 +1,7 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-cmake_minimum_required(VERSION 3.24.3)
+cmake_minimum_required(VERSION 3.16.3)
 
 # We name the project and the target for the ExternalProject_Add() call
 # to something that will highlight to the user what we are working on if
@@ -9,20 +9,15 @@ cmake_minimum_required(VERSION 3.24.3)
 
 project(googletest-populate NONE)
 
-
-
 include(ExternalProject)
 ExternalProject_Add(googletest-populate
-                     "UPDATE_DISCONNECTED" "False" "DOWNLOAD_EXTRACT_TIMESTAMP" "TRUE" "URL" "https://github.com/google/googletest/archive/e4717df71a4f45bf9f0ac88c6cd9846a0bc248dd.zip"
-                    SOURCE_DIR          "/Users/hataesung/Desktop/3-2/CP/project3/release/_deps/googletest-src"
-                    BINARY_DIR          "/Users/hataesung/Desktop/3-2/CP/project3/release/_deps/googletest-build"
+                     "UPDATE_DISCONNECTED" "False" "URL" "https://github.com/google/googletest/archive/e4717df71a4f45bf9f0ac88c6cd9846a0bc248dd.zip"
+                    SOURCE_DIR          "/root/CP/2022_ite4065_2016025041/project3/project3/release/_deps/googletest-src"
+                    BINARY_DIR          "/root/CP/2022_ite4065_2016025041/project3/project3/release/_deps/googletest-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""
                     TEST_COMMAND        ""
                     USES_TERMINAL_DOWNLOAD  YES
                     USES_TERMINAL_UPDATE    YES
-                    USES_TERMINAL_PATCH     YES
 )
-
-

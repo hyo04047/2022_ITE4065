@@ -2,7 +2,6 @@ file(REMOVE_RECURSE
   "../lib/libbwtree.a"
   "../lib/libbwtree.pdb"
   "CMakeFiles/bwtree.dir/src/bwtree.cc.o"
-  "CMakeFiles/bwtree.dir/src/bwtree.cc.o.d"
 )
 
 # Per-language clean rules from dependency scanning.

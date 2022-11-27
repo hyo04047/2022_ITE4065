@@ -1,5 +1,5 @@
-if(EXISTS "/Users/hataesung/Desktop/3-2/CP/project3/release/test/bwtree_test[1]_tests.cmake")
-  include("/Users/hataesung/Desktop/3-2/CP/project3/release/test/bwtree_test[1]_tests.cmake")
+if(EXISTS "/root/CP/2022_ite4065_2016025041/project3/project3/release/test/bwtree_test[1]_tests.cmake")
+  include("/root/CP/2022_ite4065_2016025041/project3/project3/release/test/bwtree_test[1]_tests.cmake")
 else()
   add_test(bwtree_test_NOT_BUILT bwtree_test_NOT_BUILT)
 endif()

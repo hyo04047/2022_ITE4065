@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/bwtreeplus.dir/main.cc.o"
-  "CMakeFiles/bwtreeplus.dir/main.cc.o.d"
   "bin/bwtreeplus"
   "bin/bwtreeplus.pdb"
 )
