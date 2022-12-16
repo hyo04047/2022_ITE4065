@@ -1,0 +1,509 @@
+diff --git a/src/backend/access/border_collie/border_collie.c b/src/backend/access/border_collie/border_collie.c
+index 907aee3..052ce6e 100644
+--- a/src/backend/access/border_collie/border_collie.c
++++ b/src/backend/access/border_collie/border_collie.c
+@@ -1,9 +1,13 @@
+ #include "postgres.h"
+ 
+ #include "access/border_collie.h"
++#include "access/xlog.h"
+ #include "storage/lwlock.h"
+ #include "storage/shmem.h"
+ 
++#define GetLSNFromFlag(id) (BorderCollieFlags[(id)] & 0x7FFFFFFFFFFFFFFF)
++#define GetColorFromFlag(id) (BorderCollieFlags[(id)] >> 63)
++
+ Flag *BorderCollieFlags;
+ 
+ Size
+@@ -41,3 +45,20 @@ BorderCollieFlagsInit(void)
+ 
+ 	LWLockRelease(AddinShmemInitLock);
+ }
++
++uint64
++BorderCollieLogWrtRqst(void)
++{
++	uint64 cutoff = GetXLogCurrBytePos();
++	uint64 RLB = UINT64_MAX;
++	for(int i=0; i<NBorderCollieFlags; ++i) {
++		if (GetColorFromFlag(i) == 1)
++			RLB = (GetLSNFromFlag(i) < RLB) ? GetLSNFromFlag(i) : RLB;
++		else if (GetColorFromFlag(i) == 0) {
++			uint64 tmp = (GetLSNFromFlag(i) > cutoff) ? GetLSNFromFlag(i) : cutoff;
++			RLB = (tmp < RLB) ? tmp : RLB;
++		}
++	}
++
++	return RLB;
++}
+\ No newline at end of file
+diff --git a/src/backend/access/transam/xlog.c b/src/backend/access/transam/xlog.c
+index 248a40e..4025c33 100644
+--- a/src/backend/access/transam/xlog.c
++++ b/src/backend/access/transam/xlog.c
+@@ -45,7 +45,9 @@
+ #include <sys/stat.h>
+ #include <sys/time.h>
+ #include <unistd.h>
++// #include <stdatomic.h>
+ 
++#include "access/border_collie.h"
+ #include "access/clog.h"
+ #include "access/commit_ts.h"
+ #include "access/heaptoast.h"
+@@ -77,6 +79,7 @@
+ #include "postmaster/bgwriter.h"
+ #include "postmaster/startup.h"
+ #include "postmaster/walwriter.h"
++#include "postmaster/border_collie_process.h"
+ #include "replication/basebackup.h"
+ #include "replication/logical.h"
+ #include "replication/origin.h"
+@@ -695,6 +698,11 @@ static void WALInsertLockAcquireExclusive(void);
+ static void WALInsertLockRelease(void);
+ static void WALInsertLockUpdateInsertingAt(XLogRecPtr insertingAt);
+ 
++extern uint64 GetXLogCurrBytePos(void)
++{
++	return XLogCtl->Insert.CurrBytePos;
++}
++
+ /*
+  * Insert an XLOG record represented by an already-constructed chain of data
+  * chunks.  This is a low-level routine; to construct the WAL record header
+@@ -742,6 +750,8 @@ XLogInsertRecord(XLogRecData *rdata,
+ 	XLogRecPtr	EndPos;
+ 	bool		prevDoPageWrites = doPageWrites;
+ 	TimeLineID	insertTLI;
++	Flag *flag;
++	Flag flg;
+ 
+ 	/* we assume that all of the record header is in the first chunk */
+ 	Assert(rdata->len >= SizeOfXLogRecord);
+@@ -789,10 +799,15 @@ XLogInsertRecord(XLogRecData *rdata,
+ 	 *----------
+ 	 */
+ 	START_CRIT_SECTION();
++
+ 	if (isLogSwitch)
+ 		WALInsertLockAcquireExclusive();
+ 	else
+ 		WALInsertLockAcquire();
++	
++	flag = GetBorderCollieFlag(MyProcPid % NBorderCollieFlags);
++	flg = SetBlackForFlag(Insert->CurrBytePos);
++	*flag = flg;
+ 
+ 	/*
+ 	 * Check to see if my copy of RedoRecPtr is out of date. If so, may have
+@@ -814,6 +829,7 @@ XLogInsertRecord(XLogRecData *rdata,
+ 	{
+ 		Assert(RedoRecPtr < Insert->RedoRecPtr);
+ 		RedoRecPtr = Insert->RedoRecPtr;
++		// RedoRecPtr = atomic_fetch_add(&Insert->RedoRecPtr, 0);	
+ 	}
+ 	doPageWrites = (Insert->fullPageWrites || Insert->forcePageWrites);
+ 
+@@ -826,6 +842,9 @@ XLogInsertRecord(XLogRecData *rdata,
+ 		 * back up.  Start over.
+ 		 */
+ 		WALInsertLockRelease();
++		flag = GetBorderCollieFlag(MyProcPid % NBorderCollieFlags);
++		flg = SetWhiteForFlag(*flag);
++		*flag = flg;
+ 		END_CRIT_SECTION();
+ 		return InvalidXLogRecPtr;
+ 	}
+@@ -882,6 +901,10 @@ XLogInsertRecord(XLogRecData *rdata,
+ 		 */
+ 	}
+ 
++	flag = GetBorderCollieFlag(MyProcPid % NBorderCollieFlags);
++	flg = SetWhiteForFlag(EndPos);
++	*flag = flg;
++
+ 	/*
+ 	 * Done! Let others know that we're finished.
+ 	 */
+@@ -904,10 +927,14 @@ XLogInsertRecord(XLogRecData *rdata,
+ 	if (StartPos / XLOG_BLCKSZ != EndPos / XLOG_BLCKSZ)
+ 	{
+ 		SpinLockAcquire(&XLogCtl->info_lck);
+-		/* advance global request to include new block(s) */
++		// /* advance global request to include new block(s) */
+ 		if (XLogCtl->LogwrtRqst.Write < EndPos)
+ 			XLogCtl->LogwrtRqst.Write = EndPos;
+-		/* update local result copy while I have the chance */
++		// /* update local result copy while I have the chance */
++		// LogwrtResult = XLogCtl->LogwrtResult;
++			// XLogCtl->LogwrtRqst.Write = XLogBytePosToRecPtr(BorderCollieShmem->RLB);
++		// if (XLogCtl->LogwrtRqst.Write < EndPos)
++	    // 	XLogCtl->LogwrtRqst.Write = EndPos;
+ 		LogwrtResult = XLogCtl->LogwrtResult;
+ 		SpinLockRelease(&XLogCtl->info_lck);
+ 	}
+@@ -921,6 +948,7 @@ XLogInsertRecord(XLogRecData *rdata,
+ 	{
+ 		TRACE_POSTGRESQL_WAL_SWITCH();
+ 		XLogFlush(EndPos);
++		// XLogFlush(BorderCollieLogWrtRqst());
+ 
+ 		/*
+ 		 * Even though we reserved the rest of the segment for us, which is
+@@ -1045,6 +1073,7 @@ ReserveXLogInsertLocation(int size, XLogRecPtr *StartPos, XLogRecPtr *EndPos,
+ 	uint64		startbytepos;
+ 	uint64		endbytepos;
+ 	uint64		prevbytepos;
++	// bool 		ret;
+ 
+ 	size = MAXALIGN(size);
+ 
+@@ -1071,6 +1100,29 @@ ReserveXLogInsertLocation(int size, XLogRecPtr *StartPos, XLogRecPtr *EndPos,
+ 
+ 	SpinLockRelease(&Insert->insertpos_lck);
+ 
++	// startbytepos = atomic_fetch_add(&Insert->CurrBytePos, size);
++	// endbytepos = startbytepos + size;
++	// prevbytepos = Insert->PrevBytePos;
++
++	// *StartPos = XLogBytePosToRecPtr(startbytepos);
++	// *EndPos = XLogBytePosToEndRecPtr(endbytepos);
++	// *PrevPtr = XLogBytePosToRecPtr(prevbytepos);
++
++	// while (1) {
++	// 	startbytepos = Insert->CurrBytePos;
++	// 	endbytepos = startbytepos + size;
++	// 	prevbytepos = Insert->PrevBytePos;
++
++	// 	*StartPos = XLogBytePosToRecPtr(startbytepos);
++	// 	*EndPos = XLogBytePosToEndRecPtr(endbytepos);
++
++	// 	ret = __sync_bool_compare_and_swap(&Insert->CurrBytePos, startbytepos, endbytepos);
++	// 	if (ret) {
++	// 		Insert->PrevBytePos = startbytepos;
++	// 		break;
++	// 	}
++	// }
++
+ 	*StartPos = XLogBytePosToRecPtr(startbytepos);
+ 	*EndPos = XLogBytePosToEndRecPtr(endbytepos);
+ 	*PrevPtr = XLogBytePosToRecPtr(prevbytepos);
+@@ -1103,6 +1155,8 @@ ReserveXLogSwitch(XLogRecPtr *StartPos, XLogRecPtr *EndPos, XLogRecPtr *PrevPtr)
+ 	uint32		size = MAXALIGN(SizeOfXLogRecord);
+ 	XLogRecPtr	ptr;
+ 	uint32		segleft;
++	// bool 		ret;
++
+ 
+ 	/*
+ 	 * These calculations are a bit heavy-weight to be done while holding a
+@@ -1140,6 +1194,38 @@ ReserveXLogSwitch(XLogRecPtr *StartPos, XLogRecPtr *EndPos, XLogRecPtr *PrevPtr)
+ 
+ 	SpinLockRelease(&Insert->insertpos_lck);
+ 
++	// while (1) {
++	// 	startbytepos = Insert->CurrBytePos;
++	// 	endbytepos = startbytepos + size;
++		
++	// 	ptr = XLogBytePosToEndRecPtr(startbytepos);
++	// 	if (XLogSegmentOffset(ptr, wal_segment_size) == 0)
++	// 	{
++	// 		*EndPos = *StartPos = ptr;
++	// 		return false;
++	// 	}
++
++	// 	prevbytepos = Insert->PrevBytePos;
++
++	// 	*StartPos = XLogBytePosToRecPtr(startbytepos);
++	// 	*EndPos = XLogBytePosToEndRecPtr(endbytepos);
++
++	// 	segleft = wal_segment_size - XLogSegmentOffset(*EndPos, wal_segment_size);
++	// 	if (segleft != wal_segment_size)
++	// 	{
++	// 		/* consume the rest of the segment */
++	// 		*EndPos += segleft;
++	// 		endbytepos = XLogRecPtrToBytePos(*EndPos);
++	// 	}
++		
++	// 	ret = __sync_bool_compare_and_swap(&Insert->CurrBytePos, startbytepos, endbytepos);
++	// 	if (ret) {
++	// 		if (__sync_bool_compare_and_swap(&Insert->PrevBytePos, prevbytepos, startbytepos))
++	// 			break;
++	// 	}
++	// }
++	
++
+ 	*PrevPtr = XLogBytePosToRecPtr(prevbytepos);
+ 
+ 	Assert(XLogSegmentOffset(*EndPos, wal_segment_size) == 0);
+@@ -1302,7 +1388,8 @@ static void
+ WALInsertLockAcquire(void)
+ {
+ 	bool		immed;
+-
++	// Flag *flag;
++	// Flag flg;
+ 	/*
+ 	 * It doesn't matter which of the WAL insertion locks we acquire, so try
+ 	 * the one we used last time.  If the system isn't particularly busy, it's
+@@ -1337,6 +1424,10 @@ WALInsertLockAcquire(void)
+ 		 */
+ 		lockToTry = (lockToTry + 1) % NUM_XLOGINSERT_LOCKS;
+ 	}
++
++	// flag = GetBorderCollieFlag(MyProcPid % NBorderCollieFlags);	
++	// flg = SetBlackForFlag(XLogCtl->Insert.CurrBytePos);
++	// *flag = flg;
+ }
+ 
+ /*
+@@ -1347,6 +1438,8 @@ static void
+ WALInsertLockAcquireExclusive(void)
+ {
+ 	int			i;
++	// Flag *flag;
++	// Flag flg;
+ 
+ 	/*
+ 	 * When holding all the locks, all but the last lock's insertingAt
+@@ -1364,6 +1457,10 @@ WALInsertLockAcquireExclusive(void)
+ 	LWLockAcquire(&WALInsertLocks[i].l.lock, LW_EXCLUSIVE);
+ 
+ 	holdingAllLocks = true;
++
++	// flag = GetBorderCollieFlag(MyProcPid % NBorderCollieFlags);
++	// flg = SetBlackForFlag(XLogCtl->Insert.CurrBytePos);
++	// *flag = flg;
+ }
+ 
+ /*
+@@ -1375,6 +1472,8 @@ WALInsertLockAcquireExclusive(void)
+ static void
+ WALInsertLockRelease(void)
+ {
++	// Flag *flag;
++	// Flag flg;
+ 	if (holdingAllLocks)
+ 	{
+ 		int			i;
+@@ -1392,6 +1491,10 @@ WALInsertLockRelease(void)
+ 							  &WALInsertLocks[MyLockNo].l.insertingAt,
+ 							  0);
+ 	}
++
++	// flag = GetBorderCollieFlag(MyProcPid % NBorderCollieFlags);
++	// flg = SetWhiteForFlag(*flag);
++	// *flag = flg;
+ }
+ 
+ /*
+@@ -1475,6 +1578,11 @@ WaitXLogInsertionsToFinish(XLogRecPtr upto)
+ 	 * out for any insertion that's still in progress.
+ 	 */
+ 	finishedUpto = reservedUpto;
++	// finishedUpto = XLogBytePosToEndRecPtr(GetRLB());
++	reservedUpto = XLogBytePosToEndRecPtr(GetRLB());
++	if (finishedUpto < reservedUpto)
++		return reservedUpto;
++
+ 	for (i = 0; i < NUM_XLOGINSERT_LOCKS; i++)
+ 	{
+ 		XLogRecPtr	insertingat = InvalidXLogRecPtr;
+@@ -1606,6 +1714,7 @@ GetXLogBuffer(XLogRecPtr ptr, TimeLineID tli)
+ 			initializedUpto = ptr;
+ 
+ 		WALInsertLockUpdateInsertingAt(initializedUpto);
++		// XLogCtl->InitializedUpTo = initializedUpto;
+ 
+ 		AdvanceXLInsertBuffer(ptr, tli, false);
+ 		endptr = XLogCtl->xlblocks[idx];
+@@ -2069,6 +2178,7 @@ XLogWrite(XLogwrtRqst WriteRqst, TimeLineID tli, bool flexible)
+ 	int			npages;
+ 	int			startidx;
+ 	uint32		startoffset;
++	uint64		insertpos;
+ 
+ 	/* We should always be inside a critical section here */
+ 	Assert(CritSectionCount > 0);
+@@ -2099,7 +2209,7 @@ XLogWrite(XLogwrtRqst WriteRqst, TimeLineID tli, bool flexible)
+ 	curridx = XLogRecPtrToBufIdx(LogwrtResult.Write);
+ 
+ 	while (LogwrtResult.Write < WriteRqst.Write)
+-	{
++	{	
+ 		/*
+ 		 * Make sure we're not ahead of the insert process.  This could happen
+ 		 * if we're passed a bogus WriteRqst.Write that is past the end of the
+@@ -2107,6 +2217,11 @@ XLogWrite(XLogwrtRqst WriteRqst, TimeLineID tli, bool flexible)
+ 		 */
+ 		XLogRecPtr	EndPtr = XLogCtl->xlblocks[curridx];
+ 
++		insertpos = XLogBytePosToRecPtr(GetRLB());
++		if (WriteRqst.Write < insertpos) {
++			WriteRqst.Write = insertpos;
++		}
++
+ 		if (LogwrtResult.Write >= EndPtr)
+ 			elog(PANIC, "xlog write request %X/%X is past end of log %X/%X",
+ 				 LSN_FORMAT_ARGS(LogwrtResult.Write),
+@@ -2296,6 +2411,7 @@ XLogWrite(XLogwrtRqst WriteRqst, TimeLineID tli, bool flexible)
+ 	 */
+ 	if (LogwrtResult.Flush < WriteRqst.Flush &&
+ 		LogwrtResult.Flush < LogwrtResult.Write)
++	// if (LogwrtResult.Flush < BorderCollieLogWrtRqst())
+ 	{
+ 		/*
+ 		 * Could get here without iterating above loop, in which case we might
+@@ -2325,6 +2441,7 @@ XLogWrite(XLogwrtRqst WriteRqst, TimeLineID tli, bool flexible)
+ 		WalSndWakeupRequest();
+ 
+ 		LogwrtResult.Flush = LogwrtResult.Write;
++		// LogwrtResult.Flush = BorderCollieLogWrtRqst();
+ 	}
+ 
+ 	/*
+@@ -2565,6 +2682,11 @@ XLogFlush(XLogRecPtr record)
+ 		LogwrtResult = XLogCtl->LogwrtResult;
+ 		SpinLockRelease(&XLogCtl->info_lck);
+ 
++		// insertpos = XLogBytePosToRecPtr(GetRLB());
++		// if (WriteRqstPtr < insertpos) {
++		// 	WriteRqstPtr = insertpos;
++		// }
++
+ 		/* done already? */
+ 		if (record <= LogwrtResult.Flush)
+ 			break;
+@@ -2574,6 +2696,7 @@ XLogFlush(XLogRecPtr record)
+ 		 * insertions to the pages we're about to write to finish.
+ 		 */
+ 		insertpos = WaitXLogInsertionsToFinish(WriteRqstPtr);
++		// insertpos = BorderCollieLogWrtRqst();
+ 
+ 		/*
+ 		 * Try to get the write lock. If we can't get it immediately, wait
+@@ -2704,6 +2827,7 @@ XLogBackgroundFlush(void)
+ 	TimestampTz now;
+ 	int			flushbytes;
+ 	TimeLineID	insertTLI;
++	XLogRecPtr	insertpos;
+ 
+ 	/* XLOG doesn't need flushing during recovery */
+ 	if (RecoveryInProgress())
+@@ -2721,6 +2845,11 @@ XLogBackgroundFlush(void)
+ 	WriteRqst = XLogCtl->LogwrtRqst;
+ 	SpinLockRelease(&XLogCtl->info_lck);
+ 
++	insertpos = XLogBytePosToRecPtr(GetRLB());
++	if (WriteRqst.Write < insertpos) {
++		WriteRqst.Write = insertpos;
++	}
++
+ 	/* back off to last completed page boundary */
+ 	WriteRqst.Write -= WriteRqst.Write % XLOG_BLCKSZ;
+ 
+diff --git a/src/backend/postmaster/border_collie_process.c b/src/backend/postmaster/border_collie_process.c
+index 8fb7969..3bab00c 100644
+--- a/src/backend/postmaster/border_collie_process.c
++++ b/src/backend/postmaster/border_collie_process.c
+@@ -47,10 +47,11 @@
+  */
+ int BorderCollieDelay = 1000; /* milliseconds */
+ 
+-typedef struct
+-{
+-	pid_t border_collie_pid; /* PID (0 if not started) */
+-} BorderCollieShmemStruct;
++// typedef struct
++// {
++// 	pid_t border_collie_pid; /* PID (0 if not started) */
++// 	uint64 RLB;
++// } BorderCollieShmemStruct;
+ 
+ static BorderCollieShmemStruct *BorderCollieShmem = NULL;
+ 
+@@ -74,6 +75,7 @@ BorderCollieProcessMain(void)
+ 	uint32_t tick = 0;
+ 
+ 	BorderCollieShmem->border_collie_pid = MyProcPid;
++	BorderCollieShmem->RLB = 0;
+ 
+ 	/*
+ 	 * Properly accept or ignore signals the postmaster might send us
+@@ -197,7 +199,9 @@ BorderCollieProcessMain(void)
+ 
+ 		cur_timeout = BorderCollieDelay;
+ 
+-		ereport(LOG, (errmsg("[BorderCollie] %d second", tick)));
++		BorderCollieShmem->RLB = BorderCollieLogWrtRqst();
++
++		ereport(LOG, (errmsg("[BorderCollie] %d second, [RLB] %lu", tick, BorderCollieShmem->RLB)));
+ 
+ 		++tick;
+ 
+@@ -298,3 +302,9 @@ BorderCollieShmemInit(void)
+ 	 */
+ 	BorderCollieFlagsInit();
+ }
++
++uint64
++GetRLB(void)
++{
++	return BorderCollieShmem->RLB;
++}
+diff --git a/src/include/access/border_collie.h b/src/include/access/border_collie.h
+index 1b07f6f..341a855 100644
+--- a/src/include/access/border_collie.h
++++ b/src/include/access/border_collie.h
+@@ -15,11 +15,17 @@
+ typedef uint64_t Flag;
+ 
+ extern PGDLLIMPORT int NBorderCollieFlags;
++extern Flag *BorderCollieFlags;
+ 
+ extern Size BorderCollieFlagsSize(void);
+ extern void BorderCollieFlagsInit(void);
++extern uint64 BorderCollieLogWrtRqst(void);
+ 
+-#define GetBorderCollieFlag(id) (&BorderCollieFlag[(id)])
+-#define SetBorderCollieFlag(id, val) ( /* Your content... */ )
++#define GetBorderCollieFlag(id) (&BorderCollieFlags[(id)])
++// #define SetBorderCollieFlag(id, val) (BorderCollieFlags[(id)] = (val))
++// #define GetColorFromFlag(id) (BorderCollieFlags[(id)] >> 63)
++#define SetBlackForFlag(val) ((val) | (Flag)1 << 63)
++#define SetWhiteForFlag(val) ((val) & ~((Flag)1 << 63))
++// #define GetLSNFromFlag(id) (BorderCollieFlags[(id)] & 0x7FFFFFFFFFFFFFFF)
+ 
+ #endif							/* BORDER_COLLIE_H */
+diff --git a/src/include/access/xlog.h b/src/include/access/xlog.h
+index cd674c3..ee0dfdf 100644
+--- a/src/include/access/xlog.h
++++ b/src/include/access/xlog.h
+@@ -197,6 +197,7 @@ extern XLogRecPtr XLogInsertRecord(struct XLogRecData *rdata,
+ 								   uint8 flags,
+ 								   int num_fpi,
+ 								   bool topxid_included);
++extern uint64 GetXLogCurrBytePos(void);
+ extern void XLogFlush(XLogRecPtr RecPtr);
+ extern bool XLogBackgroundFlush(void);
+ extern bool XLogNeedsFlush(XLogRecPtr RecPtr);
+diff --git a/src/include/postmaster/border_collie_process.h b/src/include/postmaster/border_collie_process.h
+index 9d40904..d284394 100644
+--- a/src/include/postmaster/border_collie_process.h
++++ b/src/include/postmaster/border_collie_process.h
+@@ -20,5 +20,14 @@ extern void BorderCollieProcessMain(void) pg_attribute_noreturn();
+ 
+ extern Size BorderCollieShmemSize(void);
+ extern void BorderCollieShmemInit(void);
++extern uint64 GetRLB(void);
++
++typedef struct
++{
++	pid_t border_collie_pid; /* PID (0 if not started) */
++	uint64 RLB;
++} BorderCollieShmemStruct;
++
++// static BorderCollieShmemStruct *BorderCollieShmem = NULL;
+ 
+ #endif							/* BORDER_COLLIE_PROCESS_H */
